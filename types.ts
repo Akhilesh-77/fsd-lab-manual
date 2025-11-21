@@ -13,5 +13,3 @@ export interface CohortOwner {
     department: string;
     image: string;
 }
-
-export type PageView = 'manual' | 'creators' | 'cohort-owners';

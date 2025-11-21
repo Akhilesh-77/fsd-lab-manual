@@ -69,4 +69,5 @@ export const COHORT_OWNERS: CohortOwner[] = [
     }
 ];
 
-export const PDF_PATH = "https://ik.imagekit.io/akhileshu/Akhilesh_finalised_updated_manual(VERCEL%20&%20CLERK).pdf";
+// Properly encoded URL to avoid issues with '&' and '()' in browsers/iframes
+export const PDF_PATH = "https://ik.imagekit.io/akhileshu/Akhilesh_finalised_updated_manual%28VERCEL%20%26%20CLERK%29.pdf";

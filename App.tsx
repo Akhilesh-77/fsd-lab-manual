@@ -1,15 +1,16 @@
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
+import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { BookOpen, Users, ArrowRight, X, GraduationCap } from 'lucide-react';
 import { CREATORS, COHORT_OWNERS, PDF_PATH } from './constants';
-import { PageView } from './types';
 
-export default function App() {
-  const [currentPage, setCurrentPage] = useState<PageView>('manual');
+// --- Components ---
+
+const ManualPage = () => {
   const [pdfOpen, setPdfOpen] = useState(false);
 
-  const ManualPage = () => (
-    <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden h-full">
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden h-full w-full">
        {!pdfOpen ? (
          <div className="text-center z-10 animate-fade-in max-w-2xl w-full flex flex-col items-center">
             <div className="w-24 h-24 bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl flex items-center justify-center mb-10 border border-white/20 ring-4 ring-white/5">
@@ -28,7 +29,7 @@ export default function App() {
             
             <button 
               onClick={() => setPdfOpen(true)}
-              className="group relative inline-flex items-center justify-center px-10 py-5 text-lg font-bold text-blue-900 transition-all duration-300 bg-white rounded-full hover:scale-105 hover:shadow-[0_0_40px_-10px_rgba(255,255,255,0.7)] focus:outline-none focus:ring-4 focus:ring-white/30 shadow-xl"
+              className="group relative inline-flex items-center justify-center px-10 py-5 text-lg font-bold text-blue-900 transition-all duration-300 bg-white rounded-full hover:scale-105 hover:shadow-[0_0_40px_-10px_rgba(255,255,255,0.7)] focus:outline-none focus:ring-4 focus:ring-white/30 shadow-xl cursor-pointer"
             >
               <span>Open Lab Manual</span>
               <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
@@ -53,7 +54,7 @@ export default function App() {
                 {/* Floating Close Button */}
                 <button 
                     onClick={() => setPdfOpen(false)}
-                    className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur-sm transition-all hover:scale-110 shadow-lg z-50"
+                    className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur-sm transition-all hover:scale-110 shadow-lg z-50 cursor-pointer"
                     title="Close Viewer"
                 >
                     <X size={24} />
@@ -63,8 +64,9 @@ export default function App() {
        )}
     </div>
   );
+};
 
-  const CreatorsPage = () => (
+const CreatorsPage = () => (
     <div className="flex-1 overflow-y-auto custom-scrollbar w-full">
         <div className="max-w-7xl mx-auto p-6 md:p-12">
             <div className="text-center mb-16">
@@ -102,9 +104,9 @@ export default function App() {
             </div>
         </div>
     </div>
-  );
+);
 
-  const CohortOwnersPage = () => (
+const CohortOwnersPage = () => (
     <div className="flex-1 overflow-y-auto custom-scrollbar w-full flex flex-col items-center justify-center min-h-full">
         <div className="max-w-6xl mx-auto p-6 md:p-12 w-full">
             <div className="text-center mb-16">
@@ -141,68 +143,80 @@ export default function App() {
             </div>
         </div>
     </div>
-  );
+);
 
-  return (
-    <div className="h-screen w-screen bg-[conic-gradient(at_top,_var(--tw-gradient-stops))] from-slate-900 via-purple-900 to-slate-900 flex flex-col overflow-hidden text-gray-900 font-sans selection:bg-blue-500 selection:text-white">
-      
-      {/* Glass Navigation Header */}
-      <nav className="h-auto md:h-24 py-4 md:py-0 flex flex-col md:flex-row items-center justify-center md:justify-between px-4 md:px-8 z-50 w-full gap-4 md:gap-0">
-         <div className="hidden md:flex items-center space-x-4">
-             <div className="bg-white/10 p-2.5 rounded-xl backdrop-blur-md border border-white/10 shadow-lg">
+const Navigation = () => {
+    const location = useLocation();
+    const currentPath = location.pathname;
+
+    return (
+        <nav className="h-auto md:h-24 py-4 md:py-0 flex flex-col md:flex-row items-center justify-center md:justify-between px-4 md:px-8 z-50 w-full gap-4 md:gap-0">
+            <div className="hidden md:flex items-center space-x-4">
+                <div className="bg-white/10 p-2.5 rounded-xl backdrop-blur-md border border-white/10 shadow-lg">
                 <BookOpen className="text-blue-200 w-6 h-6" />
-             </div>
-             <div className="flex flex-col">
-                 <span className="text-white font-black text-xl tracking-tight leading-none">FSD</span>
-                 <span className="text-blue-200 text-xs font-bold tracking-[0.2em] uppercase">Manual</span>
-             </div>
-         </div>
+                </div>
+                <div className="flex flex-col">
+                    <span className="text-white font-black text-xl tracking-tight leading-none">FSD</span>
+                    <span className="text-blue-200 text-xs font-bold tracking-[0.2em] uppercase">Manual</span>
+                </div>
+            </div>
 
-         <div className="flex bg-black/20 backdrop-blur-xl rounded-full p-1.5 border border-white/10 shadow-2xl overflow-x-auto max-w-full">
-             <button 
-                onClick={() => { setCurrentPage('manual'); setPdfOpen(false); }}
-                className={`relative px-6 md:px-8 py-2.5 rounded-full text-sm font-bold transition-all duration-300 overflow-hidden whitespace-nowrap ${
-                    currentPage === 'manual' 
+            <div className="flex bg-black/20 backdrop-blur-xl rounded-full p-1.5 border border-white/10 shadow-2xl overflow-x-auto max-w-full">
+                <Link 
+                to="/"
+                className={`relative px-6 md:px-8 py-2.5 rounded-full text-sm font-bold transition-all duration-300 overflow-hidden whitespace-nowrap no-underline flex items-center ${
+                    currentPath === '/' 
                     ? 'bg-white text-slate-900 shadow-lg scale-105' 
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
-             >
+                >
                 Manual
-             </button>
-             <button 
-                onClick={() => { setCurrentPage('creators'); setPdfOpen(false); }}
-                className={`relative px-6 md:px-8 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center overflow-hidden whitespace-nowrap ${
-                    currentPage === 'creators' 
+                </Link>
+                <Link 
+                to="/creators"
+                className={`relative px-6 md:px-8 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center overflow-hidden whitespace-nowrap no-underline ${
+                    currentPath === '/creators' 
                     ? 'bg-white text-slate-900 shadow-lg scale-105' 
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
-             >
+                >
                 <Users size={16} className="mr-2" />
                 Creators
-             </button>
-             <button 
-                onClick={() => { setCurrentPage('cohort-owners'); setPdfOpen(false); }}
-                className={`relative px-6 md:px-8 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center overflow-hidden whitespace-nowrap ${
-                    currentPage === 'cohort-owners' 
+                </Link>
+                <Link 
+                to="/cohort-owners"
+                className={`relative px-6 md:px-8 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center overflow-hidden whitespace-nowrap no-underline ${
+                    currentPath === '/cohort-owners' 
                     ? 'bg-white text-slate-900 shadow-lg scale-105' 
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
-             >
+                >
                 <GraduationCap size={16} className="mr-2" />
                 Owners
-             </button>
-         </div>
-         
-         <div className="hidden md:block w-32"></div> {/* Spacer for centering nav */}
-      </nav>
+                </Link>
+            </div>
+            
+            <div className="hidden md:block w-32"></div> {/* Spacer for centering nav */}
+        </nav>
+    );
+};
 
-      {/* Main View Area */}
-      <main className="flex-1 flex relative w-full overflow-hidden">
-         {currentPage === 'manual' && <ManualPage />}
-         {currentPage === 'creators' && <CreatorsPage />}
-         {currentPage === 'cohort-owners' && <CohortOwnersPage />}
-      </main>
+export default function App() {
+  return (
+    <Router>
+        <div className="h-screen w-screen bg-[conic-gradient(at_top,_var(--tw-gradient-stops))] from-slate-900 via-purple-900 to-slate-900 flex flex-col overflow-hidden text-gray-900 font-sans selection:bg-blue-500 selection:text-white">
+        
+            <Navigation />
 
-    </div>
+            {/* Main View Area */}
+            <main className="flex-1 flex relative w-full overflow-hidden">
+                <Routes>
+                    <Route path="/" element={<ManualPage />} />
+                    <Route path="/creators" element={<CreatorsPage />} />
+                    <Route path="/cohort-owners" element={<CohortOwnersPage />} />
+                </Routes>
+            </main>
+        </div>
+    </Router>
   );
 }
